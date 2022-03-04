@@ -25,7 +25,7 @@ struct Test {
 fn get_tests(filepath: &str) -> Vec<Test> {
     let raw = fs::read_to_string(filepath).unwrap();
     let lines = raw.lines();
-    let mut tests = Vec::new();
+    let mut tests = Vec::new(); // Lines does not have a `len`
     for line in lines {
         let idx = line.find(' ').unwrap();
         let moves = line[..idx].to_string();
@@ -46,10 +46,9 @@ fn main() {
     let fp = &args[1];
     println!("Getting tests from {}...", fp);
     let tests = get_tests(fp);
-    let mut total_time = 0; // total time per test in microseconds|
+    let mut time_per_test: Vec<u128> = Vec::with_capacity(tests.len());
     println!("Initializing transposition table...");
     let mut my_eval = Evaluator::new(STRENGTH);
-    let mut max_time = 0;
     println!("Running {} tests...", tests.len());
     //let mut i = 0;
     for (i, test) in tests.iter().enumerate() {
@@ -63,8 +62,7 @@ fn main() {
                 let test_time = elapsed.as_micros();
                 println!("{} Time taken: {}μs", i, test_time);
                 //println!("Score: {}", score);
-                total_time += test_time;
-                max_time = max_time.max(test_time);
+                time_per_test.push(test_time);
             }
             Err(e) => println!("Timing Error: {}", e),
         }
@@ -93,8 +91,11 @@ fn main() {
         //     break;
         // }
     }
-    let mean_time = total_time as f64 / tests.len() as f64;
-    println!("All tests completed.");
+    let total_time = time_per_test.iter().sum::<u128>();
+    let mean_time = total_time as f64 / time_per_test.len() as f64;
+    let max_time = time_per_test.iter().max().unwrap();
+    println!("\nAll tests completed.");
+    //println!("Total time: {}μs", total_time);
     println!("Mean time: {}μs", mean_time);
     println!("Max  time: {}μs", max_time);
 }
