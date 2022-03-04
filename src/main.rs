@@ -14,8 +14,6 @@ use std::time::SystemTime;
 
 //const TEST_FILEPATH: &str = "tests/Test_L2_R1";
 
-const STRENGTH: Strength = Strength::Weak;
-
 #[derive(Debug)]
 struct Test {
     moves: String,
@@ -38,18 +36,44 @@ fn get_tests(filepath: &str) -> Vec<Test> {
 //#[allow(unreachable_code)]
 fn main() {
     //play::main();
-    //panic!("uwu\nuwu\nuwu\nuwu\nuwu\nuwu\nuwu\nuwu\n");
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
-        panic!("Unexpected arguments. The only argument is the filepath of the test.");
+    let mut fp: Option<String> = None;
+    let mut test_strength = Strength::Strong;
+    // Note: Consider using an existing CLI library such as Clap.
+    // Alternately (and preferably), consider creating a new CLI library.
+    for arg in env::args().skip(1) {
+        if arg == "-w" || arg == "--weak" {
+            match test_strength {
+                Strength::Strong => test_strength = Strength::Weak,
+                Strength::Weak => {
+                    eprintln!("Error: Duplicate `weak` argument.");
+                    return;
+                }
+            }
+        } else if arg.starts_with('-') {
+            eprintln!("Error: Unrecognized argument `{}`", arg);
+            return;
+        } else if fp.is_none() {
+            fp = Some(arg);
+        } else {
+            eprintln!("Error: Unexpected argument `{}`", arg);
+            return;
+        }
     }
-    let fp = &args[1];
+    let fp = match fp {
+        Some(path) => path,
+        None => {
+            eprintln!("Error: No filepath for test provided.");
+            return;
+        }
+    };
     println!("Getting tests from {}...", fp);
-    let tests = get_tests(fp);
+    let tests = get_tests(&fp);
+    drop(fp);
+
     let mut time_per_test: Vec<u128> = Vec::with_capacity(tests.len());
     let mut num_fails = 0;
     println!("Initializing transposition table...");
-    let mut my_eval = Evaluator::new(STRENGTH);
+    let mut my_eval = Evaluator::new(test_strength);
     println!("Running {} tests...", tests.len());
     //let mut i = 0;
     for (i, test) in tests.iter().enumerate() {
@@ -68,7 +92,7 @@ fn main() {
             Err(e) => println!("Timing Error: {}", e),
         }
 
-        let failed = match STRENGTH {
+        let failed = match test_strength {
             Strength::Strong => score != test.eval,
             Strength::Weak => score != test.eval.signum(),
         };
@@ -77,8 +101,8 @@ fn main() {
             num_fails += 1;
             eprintln!("Test failed: {:?}", test);
             eprintln!("{}", my_game);
-            println!("Score:    {}", score);
-            println!("Expected: {}", test.eval);
+            eprintln!("Score:    {}", score);
+            eprintln!("Expected: {}", test.eval);
         }
 
         // let ekey = my_game.get_key();
@@ -101,6 +125,6 @@ fn main() {
     println!("Mean time: {}μs", mean_time);
     println!("Max  time: {}μs", max_time);
     if num_fails != 0 {
-        println!("ENCOUNTERED FAILURES: {}", num_fails);
+        eprintln!("ENCOUNTERED FAILURES: {}", num_fails);
     }
 }
