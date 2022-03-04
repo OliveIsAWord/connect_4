@@ -47,6 +47,7 @@ fn main() {
     println!("Getting tests from {}...", fp);
     let tests = get_tests(fp);
     let mut time_per_test: Vec<u128> = Vec::with_capacity(tests.len());
+    let mut num_fails = 0;
     println!("Initializing transposition table...");
     let mut my_eval = Evaluator::new(STRENGTH);
     println!("Running {} tests...", tests.len());
@@ -73,6 +74,7 @@ fn main() {
         };
         //println!("{} {}", score, test.eval.signum());
         if failed {
+            num_fails += 1;
             eprintln!("Test failed: {:?}", test);
             eprintln!("{}", my_game);
             println!("Score:    {}", score);
@@ -98,4 +100,7 @@ fn main() {
     //println!("Total time: {}μs", total_time);
     println!("Mean time: {}μs", mean_time);
     println!("Max  time: {}μs", max_time);
+    if num_fails != 0 {
+        println!("ENCOUNTERED FAILURES: {}", num_fails);
+    }
 }
