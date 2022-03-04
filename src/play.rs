@@ -10,7 +10,6 @@ pub fn main() {
         println!("{}", pos);
         let x = get_input(&pos);
         if x == -1 {
-            // pos.unplay();
             pos.unplay_row(last_played);
         } else if pos.is_winning_move(x as usize) {
             println!("Win!");

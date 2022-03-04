@@ -52,13 +52,9 @@ impl Position {
         let mut empty = true;
         for i in 0..BITMAP_SIZE {
             let bit = (HEIGHT - i % WIDTH) + (i / WIDTH) * WIDTH;
-            //println!("{} {}", empty, bit);
             let bit_mask = 1 << bit;
             if empty {
                 empty = pos & bit_mask == 0;
-                if !empty {
-                    //println!("wow");
-                }
             } else {
                 this.mask |= bit_mask;
                 this.board |= pos & bit_mask;
@@ -66,7 +62,6 @@ impl Position {
             }
             if (i + 1) % WIDTH == 0 {
                 empty = true;
-                //println!("uwu");
             }
         }
         this

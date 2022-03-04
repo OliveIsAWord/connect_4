@@ -6,13 +6,9 @@ mod transpositions;
 use eval::{Evaluator, Strength};
 use game::{Position, Score};
 
-//use std::error::Error;
 use std::env;
 use std::fs;
-//use std::process;
 use std::time::SystemTime;
-
-//const TEST_FILEPATH: &str = "tests/Test_L2_R1";
 
 #[derive(Debug)]
 struct Test {
@@ -33,9 +29,7 @@ fn get_tests(filepath: &str) -> Vec<Test> {
     tests
 }
 
-//#[allow(unreachable_code)]
 fn main() {
-    //play::main();
     let mut fp: Option<String> = None;
     let mut test_strength = Strength::Strong;
     // Note: Consider using an existing CLI library such as Clap.
@@ -75,7 +69,6 @@ fn main() {
     println!("Initializing transposition table...");
     let mut my_eval = Evaluator::new(test_strength);
     println!("Running {} tests...", tests.len());
-    //let mut i = 0;
     for (i, test) in tests.iter().enumerate() {
         //println!("{:?}", test);
         let my_game = Position::from_moves(&test.moves);
@@ -96,7 +89,6 @@ fn main() {
             Strength::Strong => score != test.eval,
             Strength::Weak => score != test.eval.signum(),
         };
-        //println!("{} {}", score, test.eval.signum());
         if failed {
             num_fails += 1;
             eprintln!("Test failed: {:?}", test);
@@ -104,18 +96,6 @@ fn main() {
             eprintln!("Score:    {}", score);
             eprintln!("Expected: {}", test.eval);
         }
-
-        // let ekey = my_game.get_key();
-        // let e = Entry::from_pos(ekey, score);
-        // let epos = Position::from_key(e.get_key());
-        //println!("{:064b}", ekey);
-        //println!("{}", e.bit_string());
-        //println!("{}", epos);
-        //assert!(my_game == epos);
-        //i += 1;
-        // if i >= 2 {
-        //     break;
-        // }
     }
     let total_time = time_per_test.iter().sum::<u128>();
     let mean_time = total_time as f64 / time_per_test.len() as f64;

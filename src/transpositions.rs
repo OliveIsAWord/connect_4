@@ -49,7 +49,7 @@ impl TTable {
     }
 
     pub fn reset(&mut self) {
-        // don't worry, this is optimized to a single MEMSET call
+        // This is optimized to a single MEMSET call.
         self.t.iter_mut().for_each(|x| *x = NULL_ENTRY)
     }
 
